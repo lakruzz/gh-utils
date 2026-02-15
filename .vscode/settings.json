@@ -1,0 +1,11 @@
+{
+  "editor.codeActionsOnSave": {
+    "source.fixAll.markdownlint": "always",
+    "source.fixAll.cspell": "explicit",
+    "source.fixAll.prettier": "explicit"
+  },
+  "[markdown]": {
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
+  },
+  "markdownlint.configFile": ".markdownlint-cli2.jsonc",  // Extension must use the same configuration file as markdownlint-cli2
+}

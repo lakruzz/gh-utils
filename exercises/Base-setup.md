@@ -1,10 +1,11 @@
-# Worklog
+# Work log
 
-## Create a workspace file in the root of your repo.
+## Create a workspace file in the root of your repo
 
 ### How
 
-Command Palette 
+Command Palette
+
 - Mac: ⬆⌘P (`shift+command+P`)
 - Windows/Linux: ⬆^P (`shift+ctrl+P`)
 
@@ -22,19 +23,20 @@ Yep: If you _don't_ use a named workspace, but just go with VS Code's implied on
 
 ### How
 
-Command Palette 
+Command Palette
+
 - Mac: ⬆⌘P (`shift+command+P`)
 - Windows/Linux: ⬆^P (`shift+ctrl+P`)
 
 `Dev Containers:Add Dev Container Configurations Files...`
 
-→  Add configuration to workspace
+→ Add configuration to workspace
 → Ubuntu
-  → noble
+→ noble
 → Select additional features to install
-  → GitHub CLI (devcontainers)
-  → Common Utilities (devcontainers)
-  → Keep Defaults
+→ GitHub CLI ('devcontainers')
+→ Common Utilities ('devcontainers')
+→ Keep Defaults
 
 The steps above will create `.devcontainer/devcontainer.json`
 
@@ -42,7 +44,8 @@ The steps above will create `.devcontainer/devcontainer.json`
 
 ### How
 
-Command Palette 
+Command Palette
+
 - Mac: ⬆⌘P (`shift+command+P`)
 - Windows/Linux: ⬆^P (`shift+ctrl+P`)
 
@@ -53,12 +56,13 @@ Test:
 ```bash
 lsb_release -a # Shows detailed distribution information (release, codename, etc.)
 ```
-
+<!-- cspell: ignore Ohhhh -->
 ### Ohhhh why this may not work!
 
-`Reopen in Container` requires that your host system (your PC!) can host a Docker container. In short **Docker must be installed and set up right"
+`Reopen in Container` requires that your host system (your PC!) can host a Docker container. In short \*\*Docker must be installed and set up right"
 
-**Prerequsite:** Install Docker Desktop
+**Prerequisite:** Install Docker Desktop
+
 - [Mac](https://docs.docker.com/desktop/setup/install/mac-install/)
 - [Windows](https://docs.docker.com/desktop/setup/install/windows-install/) (**IMPORTANT**: Use `WSL 2` as opposed to `Hyper-V`)
 
@@ -66,12 +70,12 @@ lsb_release -a # Shows detailed distribution information (release, codename, etc
 
 We need a few _extensions_ in addition to the _features_
 
-- Git Graph (mhutchie)
-- Better Git Line Blame (Mitchell Kember)
-- GitHub Copilot Chat (GitHub)
-
+- Git Graph ('mhutchie')
+- Better Git Line Blame ('Mitchell Kember')
+- GitHub Copilot Chat ('GitHub')
 
 ## How
+
 Open up the _Extensions_ panel
 
 _View_ → _Extensions_
@@ -79,21 +83,22 @@ _View_ → _Extensions_
 - Mac: ⬆⌘X (`shift+command+X`)
 - Windows/Linux: ⬆^X (`shift+ctrl+X`)
 
-
 Search for each extension one by one. When you find it:
+
 - Right click and choose _Add to devcontainer.json_
 
 👆 When you update the `devcontainer.json` file VS Code reminds you to rebuild the container, but don't do that — yet, add all three extensions first.
 
 NOW, you should rebuild the container:
 
-Command Palette 
+Command Palette
+
 - Mac: ⬆⌘P (`shift+command+P`)
 - Windows/Linux: ⬆^P (`shift+ctrl+P`)
 
 `Dev Containers:Rebuild Container`
 
-## Log into GitHub...
+## Log into GitHub
 
 We want to be able to talk to GitHub using the Command Line Interface (one fo the features we installed).
 
@@ -115,8 +120,8 @@ Let's instead, once and for all authorize you host system (Your PC) and then let
 
 At this point the terminal is running in the Dev Container, we need to get back in our local environment:
 
+Command Palette
 
-Command Palette 
 - Mac: ⬆⌘P (`shift+command+P`)
 - Windows/Linux: ⬆^P (`shift+ctrl+P`)
 
@@ -166,7 +171,6 @@ github.com
 - Token should start with `gho`
 - Token scopes should mention `'project'`
 
-
 If that is not the case try:
 
 ```bash
@@ -174,7 +178,7 @@ gh auth logout
 unset GITHUB_TOKEN
 ```
 
-run  `gh auth status` again.
+run `gh auth status` again.
 
 OK? If not run steps 1+2 again.
 
@@ -182,11 +186,11 @@ OK? If not run steps 1+2 again.
 
 What if you suspect, that someone stole your token, and you wanted to revoke or disable it?
 
-- Go to https://github.com/settings/applications
+- Go to <https://github.com/settings/applications>
 - Find the OAuth application named "GitHub CLI"
 - Click on the three dots and choose _Revoke_
 
-Test it (come on ...its fun!): 
+Test it (come on ...its fun!):
 
 - Revoke the token
 - Run `gh auth status` and see that you are now rejected access
@@ -207,12 +211,12 @@ echo $SHELL
 ```
 
 If `bash` your profile is in `~/.bash_profile`
-If `zsh`your profile is in  `~/.zprofile`
+If `zsh`your profile is in `~/.zprofile`
 
 run
 
 ```bash
-echo $GH_TOKEN 
+echo $GH_TOKEN
 echo $GH_TOKEN | base64
 ```
 
@@ -225,7 +229,7 @@ export _GH_TOKEN=<your-base64-encoded-token-here>
 export GH_TOKEN=$(echo $_GH_TOKEN | base64 --decode)
 ```
 
-At this point.  Start an new shell and run `gh auth status`
+At this point. Start an new shell and run `gh auth status`
 
 ## Make the Dev Container utilize your hos settings
 
@@ -245,51 +249,50 @@ At this point your `devcontainer.json` looks like this
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-	"name": "Ubuntu",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/base:noble",
-	"features": {
-		"ghcr.io/devcontainers/features/common-utils:2": {},
-		"ghcr.io/devcontainers/features/github-cli:1": {}
-	},
-	"customizations": {
-		"vscode": {
-			"extensions": [
-				"mhutchie.git-graph",
-				"mk12.better-git-line-blame",
-				"GitHub.copilot-chat"
-			]
-		}
-	},
-    "remoteEnv": {
-        "GH_TOKEN": "${localEnv:GH_TOKEN}"
+  "name": "Ubuntu",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "mhutchie.git-graph",
+        "mk12.better-git-line-blame",
+        "GitHub.copilot-chat"
+      ]
     }
+  },
+  "remoteEnv": {
+    "GH_TOKEN": "${localEnv:GH_TOKEN}"
+  }
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  // "features": {},
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "uname -a",
 
-	// Configure tool-specific properties.
-	// "customizations": {},
+  // Configure tool-specific properties.
+  // "customizations": {},
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
 }
 ```
 
 Now rebuild in the dev container:
 
-Command Palette 
+Command Palette
+
 - Mac: ⬆⌘P (`shift+command+P`)
 - Windows/Linux: ⬆^P (`shift+ctrl+P`)
 
 `Dev Containers:Rebuild and Reopen in Container`
 
 run `gh auth status`
-
-
