@@ -2,13 +2,34 @@
 
 # Pre-commit hook to run static checks in parallel
 
-PASS=TRUE
 
-# Enable/disable specific checks
-#TODO: Add more checks here.
-RUN_CSPELL="TRUE"
-RUN_MARKDOWNLINT="TRUE"
-RUN_PRETTIER="TRUE"
+#########################################################################
+####        Add Additional Chekc:                                    ####
+####    A: Add a new name (lowercase) to the CHECK_NAMES array       ####
+####    B: Add an tuple in the CHECK_COMMANDS array                  ####
+####         KEY = Name you added to CHECK_NAMES                     ####
+####         VALUE = Command to run for that check                   ####
+#########################################################################
+
+
+# Define checks: name and command
+# To add a new check: add "name" to CHECK_NAMES and add CHECK_COMMANDS[name]="command"
+# To disable a check: remove the name from CHECK_NAMES (doesn't need removal from CHECK_COMMANDS)
+CHECK_NAMES=("cspell" "markdownlint" "prettier")
+
+declare -A CHECK_COMMANDS=(
+    [cspell]="cspell ."
+    [markdownlint]="markdownlint-cli2"
+    [prettier]="prettier --check \"**/*.{md,html,css,js,json}\""
+)
+
+####################################################
+####                 DANGER ZONE:               ####
+####     No need to edit below this point       ####
+####     unless you know what you're doing!     ####
+####################################################
+
+PASS=TRUE
 
 # Create local temp directory for output capture
 TMPDIR=".tmp"
@@ -17,83 +38,82 @@ if [ ! -d "$TMPDIR" ]; then
     echo "*" > "$TMPDIR/.gitignore"
 fi
 
-#TODO: Define temp files for each check's output
-CSPELL_OUT=$(mktemp -p "$TMPDIR")
-MARKDOWNLINT_OUT=$(mktemp -p "$TMPDIR")
-PRETTIER_OUT=$(mktemp -p "$TMPDIR")
+# Create temp files and declare arrays
+declare -A CHECK_OUT
+declare -A CHECK_PID
+declare -A CHECK_STATUS
 
+for check in "${CHECK_NAMES[@]}"; do
+    CHECK_OUT[$check]=$(mktemp -p "$TMPDIR")
+    CHECK_STATUS[$check]=0
+done
 
-# TODO: add output file to the cleqnup trap 
 # Cleanup temp files on exit
-trap "rm -f $CSPELL_OUT $MARKDOWNLINT_OUT $PRETTIER_OUT" EXIT
+trap 'rm -f "${CHECK_OUT[@]}"' EXIT
 
+# Function to capitalize first letter
+capitalize() {
+    echo "$1" | sed 's/^./\U&/'
+}
+
+# Function to start a check in the background
+run_check() {
+    local name=$1
+    
+    printf "   ⏳ $(capitalize $name) check\n"
+    ((PROGRESS_COUNT++))
+    eval "${CHECK_COMMANDS[$name]}" > "${CHECK_OUT[$name]}" 2>&1 &
+    CHECK_PID[$name]=$!
+}
+
+# Function to wait for and capture exit status
+wait_check() {
+    local name=$1
+    
+    wait "${CHECK_PID[$name]}" || CHECK_STATUS[$name]=$?
+}
+
+# Function to print status line
+print_status() {
+    local name=$1
+    
+    if [ "${CHECK_STATUS[$name]}" -eq 0 ]; then
+        echo "   ✅ $(capitalize $name) check"
+    else
+        echo "   ❌ $(capitalize $name) check"
+    fi
+}
+
+# Function to display error output
+show_error() {
+    local name=$1
+    
+    if [ "${CHECK_STATUS[$name]}" -ne 0 ]; then
+        echo "$(capitalize $name) issues:"
+        cat "${CHECK_OUT[$name]}"
+        echo ""
+    fi
+}
+
+# Main execution
 echo "🔍 Running pre-commit checks..."
 
 # Track how many progress lines we print
 PROGRESS_COUNT=0
 
 
-#TODO: Add more checks here 
-# Start checks in parallel
-if [ "$RUN_CSPELL" == "TRUE" ]; then
-    printf "   ⏳ CSpell check\n"
-    ((PROGRESS_COUNT++))
-    cspell . > "$CSPELL_OUT" 2>&1 &
-    CSPELL_PID=$!
-fi
+# Start all checks in parallel
+for check in "${CHECK_NAMES[@]}"; do
+    run_check "$check"
+done
 
-if [ "$RUN_MARKDOWNLINT" == "TRUE" ]; then
-    printf "   ⏳ MarkdownLint check\n"
-    ((PROGRESS_COUNT++))
-    markdownlint-cli2 > "$MARKDOWNLINT_OUT" 2>&1 &
-    MARKDOWNLINT_PID=$!
-fi
-
-if [ "$RUN_PRETTIER" == "TRUE" ]; then
-    printf "   ⏳ Prettier check\n"
-    ((PROGRESS_COUNT++))
-    prettier --check "**/*.{md,html,css,js,json}" > "$PRETTIER_OUT" 2>&1 &
-    PRETTIER_PID=$!
-fi
-
-
-# TODO Set initial status variables for each check
-
-CSPELL_STATUS=0
-MARKDOWNLINT_STATUS=0
-PRETTIER_STATUS=0
-
-#  TODO: Wait for checks to complete and capture their exit statuses
-
-if [ "$RUN_CSPELL" == "TRUE" ]; then
-    wait $CSPELL_PID || CSPELL_STATUS=$?
-    if [ $CSPELL_STATUS -eq 0 ]; then
-        echo "   ✅ CSpell check"
-    else
-        echo "   ❌ CSpell check"
+# Wait for all checks to complete
+for check in "${CHECK_NAMES[@]}"; do
+    wait_check "$check"
+    if [ "${CHECK_STATUS[$check]}" -ne 0 ]; then
         PASS=FALSE
     fi
-fi
-
-if [ "$RUN_MARKDOWNLINT" == "TRUE" ]; then
-    wait $MARKDOWNLINT_PID || MARKDOWNLINT_STATUS=$?
-    if [ $MARKDOWNLINT_STATUS -eq 0 ]; then
-        echo "   ✅ MarkdownLint check"
-    else
-        echo "   ❌ MarkdownLint check"
-        PASS=FALSE
-    fi
-fi
-
-if [ "$RUN_PRETTIER" == "TRUE" ]; then
-    wait $PRETTIER_PID || PRETTIER_STATUS=$?
-    if [ $PRETTIER_STATUS -eq 0 ]; then
-        echo "   ✅ Prettier check"
-    else
-        echo "   ❌ Prettier check"
-        PASS=FALSE
-    fi
-fi
+done
 
 # Clear progress lines and replace with results
 for ((i=0; i<PROGRESS_COUNT; i++)); do
@@ -101,36 +121,10 @@ for ((i=0; i<PROGRESS_COUNT; i++)); do
     tput el     # Clear line
 done
 
-# Move back to start of progress section
-tput cuu $PROGRESS_COUNT
-
-# TODO Print final status for each check
-
 # Print final status for each check
-if [ "$RUN_CSPELL" == "TRUE" ]; then
-    if [ $CSPELL_STATUS -eq 0 ]; then
-        echo "   ✅ CSpell check"
-    else
-        echo "   ❌ CSpell check"
-    fi
-fi
-
-if [ "$RUN_MARKDOWNLINT" == "TRUE" ]; then
-    if [ $MARKDOWNLINT_STATUS -eq 0 ]; then
-        echo "   ✅ MarkdownLint check"
-    else
-        echo "   ❌ MarkdownLint check"
-    fi
-fi
-
-if [ "$RUN_PRETTIER" == "TRUE" ]; then
-    if [ $PRETTIER_STATUS -eq 0 ]; then
-        echo "   ✅ Prettier check"
-    else
-        echo "   ❌ Prettier check"
-    fi
-fi
-
+for check in "${CHECK_NAMES[@]}"; do
+    print_status "$check"
+done
 
 # Report results
 if [ "$PASS" == "TRUE" ]; then
@@ -138,26 +132,11 @@ if [ "$PASS" == "TRUE" ]; then
     echo "✅ All pre-commit checks passed"
     exit 0
 else
-
-    # TODO Print detailed output for failed checks. 
-    
     echo ""
-    if [ $CSPELL_STATUS -ne 0 ]; then
-        echo "CSpell issues:"
-        cat "$CSPELL_OUT"
-        echo ""
-    fi
-    if [ $MARKDOWNLINT_STATUS -ne 0 ]; then
-        echo "MarkdownLint issues:"
-        cat "$MARKDOWNLINT_OUT"
-        echo ""
-    fi
-    if [ $PRETTIER_STATUS -ne 0 ]; then
-        echo "Prettier issues:"
-        cat "$PRETTIER_OUT"
-        echo ""
-    fi
-
+    for check in "${CHECK_NAMES[@]}"; do
+        show_error "$check"
+    done
+    
     echo "👉 Fix the issues above before committing."
     echo "💡 You can run the same checks manually with: '.githooks/pre-commit'"
     exit 1
