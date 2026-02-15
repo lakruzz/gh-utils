@@ -56,7 +56,9 @@ Test:
 ```bash
 lsb_release -a # Shows detailed distribution information (release, codename, etc.)
 ```
+
 <!-- cspell: ignore Ohhhh -->
+
 ### Ohhhh why this may not work!
 
 `Reopen in Container` requires that your host system (your PC!) can host a Docker container. In short \*\*Docker must be installed and set up right"
