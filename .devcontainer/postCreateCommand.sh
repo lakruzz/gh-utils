@@ -28,14 +28,6 @@ fi
 if [ -f "go.mod" ]; then
     echo "📦 Installing Go dependencies (go mod download)..."
     go mod download
-    
-    echo "📦 Installing golangci-lint..."
-    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
-        sh -s -- -b $(go env GOPATH)/bin latest
-    echo "$(go env GOPATH)/bin" >> ~/.bashrc
-    
-    echo "🔨 Building Go project..."
-    go build -o utils .
 else
     echo "⏭️  No go.mod found, skipping Go dependencies"
 fi

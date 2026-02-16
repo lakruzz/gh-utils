@@ -116,6 +116,7 @@ func TestCreateFromFile(t *testing.T) {
 			tmpDir := t.TempDir()
 			tmpFile := filepath.Join(tmpDir, "test.md")
 
+			// #nosec G306 - test file permissions are intentionally relaxed
 			if err := os.WriteFile(tmpFile, []byte(tt.content), 0644); err != nil {
 				t.Fatalf("Failed to create temp file: %v", err)
 			}

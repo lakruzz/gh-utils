@@ -1,3 +1,4 @@
+// Package cmd provides command-line interface commands for the gh-utils extension.
 package cmd
 
 import (
@@ -17,7 +18,7 @@ var mkissueCmd = &cobra.Command{
 	Short: "Create a GitHub issue from a markdown file",
 	Long: `Create a GitHub issue from a markdown file.
 The markdown file should contain the issue title and body.`,
-	RunE: func(cmd *cobra.Command, args []string) error {
+	RunE: func(_ *cobra.Command, _ []string) error {
 		if issueFile == "" {
 			return fmt.Errorf("file flag is required")
 		}

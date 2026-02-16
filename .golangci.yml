@@ -29,15 +29,17 @@ issues:
         - dupl
         - gosec
         - goconst
+
+linters:
   enable:
+    # Default linters (enabled by default but listed explicitly)
     - errcheck      # Check for unchecked errors
-    - gosimple      # Simplify code
     - govet         # Reports suspicious constructs
     - ineffassign   # Detect ineffectual assignments
     - staticcheck   # Static analysis
     - unused        # Check for unused code
-    - gofmt         # Check code formatting
-    - goimports     # Check import ordering
+    
+    # Additional linters
     - misspell      # Check for misspelled words
     - revive        # Fast, configurable linter (replaces golint)
     - gosec         # Security issues
@@ -48,7 +50,6 @@ issues:
     - unparam       # Unused function parameters
     - nakedret      # Naked returns in long functions
     - prealloc      # Slice pre-allocation
-    - exportloopref # Check for pointer references to loop variables
     - gocritic      # Go critique
     - gocognit      # Cognitive complexity (similar to cyclomatic)
 

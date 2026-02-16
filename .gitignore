@@ -36,3 +36,4 @@ tmp/
 # Build artifacts
 dist/
 build/
+example-issue.md

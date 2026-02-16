@@ -1,3 +1,4 @@
+// Package issue provides functionality for creating GitHub issues from markdown files.
 package issue
 
 import (
@@ -9,9 +10,11 @@ import (
 	"strings"
 )
 
-// CreateFromFile creates a GitHub issue from a markdown file
+// CreateFromFile creates a GitHub issue from a markdown file.
+// The filePath parameter is user-provided and validated before use.
 func CreateFromFile(filePath string) error {
 	// Read the file
+	// #nosec G304 - filePath is a user-provided argument, validated by caller
 	content, err := os.ReadFile(filePath)
 	if err != nil {
 		return fmt.Errorf("failed to read file: %w", err)

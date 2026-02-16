@@ -1,3 +1,4 @@
+// Package main is the entry point for the gh-utils CLI application.
 package main
 
 import (

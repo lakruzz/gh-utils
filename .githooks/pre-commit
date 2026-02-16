@@ -15,7 +15,7 @@
 # Define checks: name and command
 # To add a new check: add "name" to CHECK_NAMES and add CHECK_COMMANDS[name]="command"
 # To disable a check: remove the name from CHECK_NAMES (doesn't need removal from CHECK_COMMANDS)
-CHECK_NAMES=("cspell" "markdownlint" "prettier" "gofmt" "govet" "golint" "gotest" "gobuild")
+CHECK_NAMES=("cspell" "markdownlint" "prettier" "gofmt" "govet" "golangci-lint" "gotest" "gobuild")
 
 declare -A CHECK_COMMANDS=(
     [cspell]="cspell ."
@@ -23,7 +23,7 @@ declare -A CHECK_COMMANDS=(
     [prettier]="prettier --check \"**/*.{md,html,css,js,json}\""
     [gofmt]="test -z \"\$(gofmt -l .)\" || { gofmt -l .; exit 1; }"
     [govet]="go vet ./..."
-    [golint]="export PATH=\$PATH:\$(go env GOPATH)/bin && golangci-lint run ./..."
+    [golangci-lint]="export PATH=\$PATH:\$(go env GOPATH)/bin && golangci-lint run ./..."
     [gotest]="go test ./... -race -coverprofile=coverage.txt"
     [gobuild]="go build -o utils ."
 )
