@@ -1,5 +1,5 @@
 # Makefile for gh-utils
-.PHONY: help build test lint clean install coverage watch build-all fmt vet
+.PHONY: help build test lint clean install coverage coverage-check watch build-all fmt vet
 
 # Default target
 .DEFAULT_GOAL := help
@@ -9,6 +9,9 @@ BINARY_NAME=utils
 
 # Build directory
 BUILD_DIR=.
+
+# Coverage threshold (percentage)
+COVERAGE_THRESHOLD=75
 
 # Go parameters
 GOCMD=go
@@ -49,6 +52,23 @@ coverage: ## Run tests with coverage
 	$(GOTEST) -v -coverprofile=coverage.txt -covermode=atomic ./...
 	$(GOCMD) tool cover -html=coverage.txt -o coverage.html
 	@echo "✅ Coverage report generated: coverage.html"
+	@$(MAKE) coverage-check
+
+coverage-check: ## Check if coverage meets the threshold
+	@echo "Checking coverage against threshold ($(COVERAGE_THRESHOLD)%)..."
+	@coverage=$$($(GOCMD) tool cover -func=coverage.txt | grep total | awk '{print $$3}' | sed 's/%//'); \
+	threshold=$(COVERAGE_THRESHOLD); \
+	if [ -z "$$coverage" ]; then \
+		echo "❌ Could not determine coverage"; \
+		exit 1; \
+	fi; \
+	coverage_int=$$(printf "%.0f" $$coverage); \
+	if [ $$coverage_int -ge $$threshold ]; then \
+		echo "✅ Coverage $$coverage% meets threshold $$threshold%"; \
+	else \
+		echo "❌ Coverage $$coverage% is below threshold $$threshold%"; \
+		exit 1; \
+	fi
 
 lint: ## Run linter (requires golangci-lint)
 	@if command -v golangci-lint >/dev/null 2>&1; then \

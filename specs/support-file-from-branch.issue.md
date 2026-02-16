@@ -3,7 +3,7 @@ title: "Make mkissue support a different branch"
 assign:
 labels:
   - name: "spec"
-    desc: "An issue that's desinged to be a spec for and AI agent"
+    desc: "An issue that's designed to be a spec for and AI agent"
     color: "#881188"
   - name: "agentic ai"
     desc: "An issue that has been worked by an LLM in agentic mode"

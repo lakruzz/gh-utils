@@ -49,5 +49,22 @@
   "go.useLanguageServer": true,
   "go.lintOnSave": "package",
   "go.lintTool": "golangci-lint",
-  "go.lintArgs": ["--config=.golangci.yml"]
+  "go.lintArgs": [
+    "--config=.golangci.yml"
+  ],
+  "chat.tools.terminal.autoApprove": {
+    "/^make test$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^make test 2>&1 \\| head -100$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "/^make coverage 2>&1 \\| tail -30$/": {
+      "approve": true,
+      "matchCommandLine": true
+    },
+    "make": true
+  }
 }

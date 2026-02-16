@@ -14,14 +14,22 @@
 
 # Define checks: name and command
 # To add a new check: add "name" to CHECK_NAMES and add CHECK_COMMANDS[name]="command"
+# It mosy be a single-word name (lowercase) for display and mapping purposes, but the command can be anything you want
 # To disable a check: remove the name from CHECK_NAMES (doesn't need removal from CHECK_COMMANDS)
-CHECK_NAMES=("cspell" "markdownlint" "prettier" "build")
+CHECK_NAMES=("cspell" "markdownlint" "prettier" "coverage" "build")
 
+# Mapping of names (above) to their respective commands
 declare -A CHECK_COMMANDS=(
-    [cspell]="cspell"
+    [cspell]="cspell ."
     [markdownlint]="markdownlint-cli2"
     [prettier]="prettier --check ."
+    [coverage]="make coverage"
     [build]="make build" 
+)
+
+# Mapping for display names (optional) No entry means it will just capitalize the name from CHECK_NAMES
+declare -A DISPLAY_NAMES=(
+    [coverage]="Test with coverage"
 )
 
 ####################################################
@@ -57,11 +65,21 @@ capitalize() {
     echo "$1" | sed 's/^./\U&/'
 }
 
+# Function to get display name for a check
+get_display_name() {
+    local name=$1
+    if [ -n "${DISPLAY_NAMES[$name]}" ]; then
+        echo "${DISPLAY_NAMES[$name]}"
+    else
+        capitalize "$name"
+    fi
+}
+
 # Function to start a check in the background
 run_check() {
     local name=$1
     
-    printf "   ⏳ $(capitalize $name) check\n"
+    printf "   ⏳ $(get_display_name $name) check\n"
     ((PROGRESS_COUNT++))
     eval "${CHECK_COMMANDS[$name]}" > "${CHECK_OUT[$name]}" 2>&1 &
     CHECK_PID[$name]=$!
@@ -79,9 +97,9 @@ print_status() {
     local name=$1
     
     if [ "${CHECK_STATUS[$name]}" -eq 0 ]; then
-        echo "   ✅ $(capitalize $name) check"
+        echo "   ✅ $(get_display_name $name) check"
     else
-        echo "   ❌ $(capitalize $name) check"
+        echo "   ❌ $(get_display_name $name) check"
     fi
 }
 
@@ -90,7 +108,7 @@ show_error() {
     local name=$1
     
     if [ "${CHECK_STATUS[$name]}" -ne 0 ]; then
-        echo "$(capitalize $name) issues:"
+        echo "$(get_display_name $name) issues:"
         cat "${CHECK_OUT[$name]}"
         echo ""
     fi

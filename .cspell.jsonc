@@ -18,6 +18,11 @@
     "**/_site/**",
     ".cspell.jsonc",
     "**/coverage.txt",
+    "**/*.go",
+    "**/Makefile",
+    "**/go.mod",
+    "**/go.sum",
+    "**/utils",
   ],
   "files": [
     "**/*.md",

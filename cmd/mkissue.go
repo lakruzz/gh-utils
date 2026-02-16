@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	issueFile string
+	issueFile  string
+	branchName string
 )
 
 var mkissueCmd = &cobra.Command{
@@ -16,8 +17,8 @@ var mkissueCmd = &cobra.Command{
 	Long: `Create a GitHub issue from a markdown file with frontmatter support.
 The markdown file should contain YAML frontmatter with metadata and a markdown body.`,
 	RunE: func(_ *cobra.Command, _ []string) error {
-		// Call the original mkissue logic with the file path
-		return mkissue.RunWithFile(issueFile)
+		// Call the original mkissue logic with the file path and branch
+		return mkissue.RunWithFile(issueFile, branchName)
 	},
 }
 
@@ -26,5 +27,6 @@ func init() {
 
 	// Define flags for mkissue command
 	mkissueCmd.Flags().StringVarP(&issueFile, "file", "f", "", "Path to the markdown file containing issue content (required)")
+	mkissueCmd.Flags().StringVarP(&branchName, "branch", "b", "", "Branch name to get the file from (optional)")
 	_ = mkissueCmd.MarkFlagRequired("file")
 }

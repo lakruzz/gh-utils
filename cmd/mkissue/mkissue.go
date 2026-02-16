@@ -29,7 +29,7 @@ func Run(args []string) {
 	}
 
 	issueFile := args[0]
-	if err := RunWithFile(issueFile); err != nil {
+	if err := RunWithFile(issueFile, ""); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
@@ -37,11 +37,22 @@ func Run(args []string) {
 
 // RunWithFile processes a single issue file and returns an error instead of exiting.
 // This function is compatible with Cobra command error handling.
-func RunWithFile(issueFile string) error {
-	// Read the file
-	content, err := os.ReadFile(issueFile)
-	if err != nil {
-		return fmt.Errorf("file '%s' not found: %w", issueFile, err)
+// If branch is provided, the file will be read from that git branch.
+func RunWithFile(issueFile, branch string) error {
+	var content []byte
+	var err error
+
+	// Read the file from the specified branch or from the filesystem
+	if branch != "" {
+		content, err = readFileFromBranch(issueFile, branch)
+		if err != nil {
+			return fmt.Errorf("failed to read file from branch '%s': %w", branch, err)
+		}
+	} else {
+		content, err = os.ReadFile(issueFile)
+		if err != nil {
+			return fmt.Errorf("file '%s' not found: %w", issueFile, err)
+		}
 	}
 
 	// Parse the file
@@ -71,6 +82,32 @@ func RunWithFile(issueFile string) error {
 
 	fmt.Println("Issue created successfully!")
 	return nil
+}
+
+// readFileFromBranch reads a file from a specific git branch without checking it out.
+// It uses `git show <branch>:<file>` to retrieve the file content.
+func readFileFromBranch(filePath, branch string) ([]byte, error) {
+	// Basic validation: ensure branch name doesn't contain null bytes or newlines
+	// which could cause issues with git commands
+	if strings.ContainsAny(branch, "\x00\n\r") {
+		return nil, fmt.Errorf("invalid branch name: contains prohibited characters")
+	}
+	if strings.ContainsAny(filePath, "\x00\n\r") {
+		return nil, fmt.Errorf("invalid file path: contains prohibited characters")
+	}
+
+	// Use git show to read the file from the specified branch
+	// Note: exec.Command passes arguments separately, not through shell, preventing injection
+	cmd := exec.Command("git", "show", fmt.Sprintf("%s:%s", branch, filePath))
+	output, err := cmd.Output()
+	if err != nil {
+		// Check if it's an exit error and provide more context
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return nil, fmt.Errorf("failed to read file from branch: %s", string(exitErr.Stderr))
+		}
+		return nil, fmt.Errorf("failed to read file from branch: %w", err)
+	}
+	return output, nil
 }
 
 func parseIssueFile(content string) (*IssueMetadata, string, error) {
