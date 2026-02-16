@@ -2,10 +2,7 @@
 package cmd
 
 import (
-	"fmt"
-	"os"
-
-	"github.com/lakruzz/gh-utils/internal/issue"
+	"github.com/lakruzz/gh-utils/cmd/mkissue"
 	"github.com/spf13/cobra"
 )
 
@@ -16,25 +13,11 @@ var (
 var mkissueCmd = &cobra.Command{
 	Use:   "mkissue",
 	Short: "Create a GitHub issue from a markdown file",
-	Long: `Create a GitHub issue from a markdown file.
-The markdown file should contain the issue title and body.`,
+	Long: `Create a GitHub issue from a markdown file with frontmatter support.
+The markdown file should contain YAML frontmatter with metadata and a markdown body.`,
 	RunE: func(_ *cobra.Command, _ []string) error {
-		if issueFile == "" {
-			return fmt.Errorf("file flag is required")
-		}
-
-		// Check if file exists
-		if _, err := os.Stat(issueFile); os.IsNotExist(err) {
-			return fmt.Errorf("file does not exist: %s", issueFile)
-		}
-
-		// Create the issue
-		if err := issue.CreateFromFile(issueFile); err != nil {
-			return fmt.Errorf("failed to create issue: %w", err)
-		}
-
-		fmt.Printf("✅ Issue created successfully from %s\n", issueFile)
-		return nil
+		// Call the original mkissue logic with the file path
+		return mkissue.RunWithFile(issueFile)
 	},
 }
 
@@ -45,3 +28,4 @@ func init() {
 	mkissueCmd.Flags().StringVarP(&issueFile, "file", "f", "", "Path to the markdown file containing issue content (required)")
 	_ = mkissueCmd.MarkFlagRequired("file")
 }
+

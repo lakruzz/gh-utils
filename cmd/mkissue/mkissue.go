@@ -29,45 +29,50 @@ func Run(args []string) {
 	}
 
 	issueFile := args[0]
+	if err := RunWithFile(issueFile); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
 
+// RunWithFile processes a single issue file and returns an error instead of exiting.
+// This function is compatible with Cobra command error handling.
+func RunWithFile(issueFile string) error {
 	// Read the file
 	content, err := os.ReadFile(issueFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: File '%s' not found\n", issueFile)
-		os.Exit(1)
+		return fmt.Errorf("file '%s' not found: %w", issueFile, err)
 	}
 
 	// Parse the file
 	metadata, body, err := parseIssueFile(string(content))
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
+		return err
 	}
 
 	// Validate required fields
 	if metadata.Title == "" {
-		fmt.Fprintln(os.Stderr, "Error: 'title' is required in frontmatter")
-		os.Exit(1)
+		return fmt.Errorf("'title' is required in frontmatter")
 	}
 
 	// Create or verify labels
 	for _, label := range metadata.Labels {
 		if label.Color != "" || label.Desc != "" {
 			if err := ensureLabelExists(label); err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating label: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("error creating label: %w", err)
 			}
 		}
 	}
 
 	// Create the issue
 	if err := createIssue(metadata, body); err != nil {
-		fmt.Fprintf(os.Stderr, "Error creating issue: %v\n", err)
-		os.Exit(1)
+		return fmt.Errorf("error creating issue: %w", err)
 	}
 
 	fmt.Println("Issue created successfully!")
+	return nil
 }
+
 
 func parseIssueFile(content string) (*IssueMetadata, string, error) {
 	// Split by frontmatter delimiters
