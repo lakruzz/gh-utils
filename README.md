@@ -1,3 +1,4 @@
+<!-- cspell:ignore gofmt golangci  -->
 # gh-utils
 
 A GitHub CLI extension providing utility commands for GitHub workflows and automation.
@@ -12,7 +13,7 @@ gh extension install lakruzz/gh-utils
 
 ## Usage
 
-### mkissue - Create GitHub Issue from Markdown File
+### `mkissue` - Create GitHub Issue from Markdown File
 
 Create a GitHub issue from a markdown file:
 
@@ -98,7 +99,7 @@ git config core.hooksPath .githooks
 
 ## Project Structure
 
-```
+```txt
 .
 ├── main.go              # Application entry point
 ├── cmd/                 # CLI commands

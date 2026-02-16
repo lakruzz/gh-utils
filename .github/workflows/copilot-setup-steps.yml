@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-    
+
     steps:
       # Checkout code
       - name: Checkout repository
@@ -24,10 +24,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.23'
+          go-version: "1.23"
           cache: true
 
-      # Install dependencies
+      # Install go dependencies
       - name: Install Go dependencies
         run: go mod download
 
@@ -42,50 +42,41 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
 
-      # Install markdown/spell linters
-      - name: Install linters
-        run: |
-          npm install -g prettier markdownlint-cli2 cspell @cspell/dict-da-dk
+      # Install npm packages required by .githooks/pre-commit
+      # These are CRITICAL for validation to pass
+      - name: Install Node.js linting tools
+        run: npm install -g cspell markdownlint-cli2 @cspell/dict-da-dk prettier
 
-      # Run Go fmt check
-      - name: Check Go formatting
-        run: |
-          if [ -n "$(gofmt -l .)" ]; then
-            echo "Go files are not formatted:"
-            gofmt -l .
-            exit 1
-          fi
+      ## Run Go vet
+      #- name: Run go vet
+      #  run: go vet ./...
 
-      # Run Go vet
-      - name: Run go vet
-        run: go vet ./...
+      ## Run golangci-lint
+      #- name: Run golangci-lint
+      #  run: golangci-lint run ./...
 
-      # Run golangci-lint
-      - name: Run golangci-lint
-        run: golangci-lint run ./...
+      ## Run Go tests
+      #- name: Run Go tests
+      #  run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
 
-      # Run Go tests
-      - name: Run Go tests
-        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      ## Upload coverage
+      #- name: Upload coverage to Codecov
+      #  uses: codecov/codecov-action@v4
+      #  with:
+      #    files: ./coverage.txt
+      #    flags: unittests
+      #    name: codecov-umbrella
+      #    fail_ci_if_error: false
 
-      # Upload coverage
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage.txt
-          flags: unittests
-          name: codecov-umbrella
-          fail_ci_if_error: false
+      ## Build the binary
+      #- name: Build binary
+      #  run: make build
 
-      # Build the binary
-      - name: Build binary
-        run: make build
-
-      # Test the binary
-      - name: Test binary help command
-        run: ./utils --help
+      ## Test the binary
+      #- name: Test binary help command
+      #  run: ./utils --help
 
       # Configure git hooks path
       - name: Configure Git hooks

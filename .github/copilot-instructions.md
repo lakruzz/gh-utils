@@ -87,5 +87,6 @@ The binary must be named `utils` and placed in the repository root to be recogni
 ## RAG Instructions Location
 
 Additional instructions can be found in:
+
 - `.github/copilot-instructions.md` (this file)
 - `.github/instructions/*.instructions.md` - Specific topic instructions

@@ -9,7 +9,7 @@
 
 Follow the standard Go project layout:
 
-```
+```txt
 /
 ├── main.go                 # Application entry point
 ├── cmd/                    # Command implementations
@@ -45,6 +45,7 @@ Follow the standard Go project layout:
 - Don't use panic for normal error handling
 
 Example:
+
 ```go
 content, err := os.ReadFile(filePath)
 if err != nil {
@@ -60,6 +61,7 @@ if err != nil {
 - **Race detector**: Tests run with `-race` flag in CI
 
 Example table-driven test:
+
 ```go
 func TestFunction(t *testing.T) {
     tests := []struct {
@@ -167,6 +169,7 @@ make build-all         # Build for:
 ## Git Hooks
 
 The pre-commit hook runs:
+
 1. Go formatting check (`gofmt`)
 2. Go vet
 3. golangci-lint

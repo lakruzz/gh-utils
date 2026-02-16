@@ -17,6 +17,7 @@
     "**/temp/**",
     "**/_site/**",
     ".cspell.jsonc",
+    "**/coverage.txt",
   ],
   "files": [
     "**/*.md",

@@ -15,12 +15,13 @@
 # Define checks: name and command
 # To add a new check: add "name" to CHECK_NAMES and add CHECK_COMMANDS[name]="command"
 # To disable a check: remove the name from CHECK_NAMES (doesn't need removal from CHECK_COMMANDS)
-CHECK_NAMES=("cspell" "markdownlint" "prettier")
+CHECK_NAMES=("cspell" "markdownlint" "prettier" "build")
 
 declare -A CHECK_COMMANDS=(
     [cspell]="cspell"
     [markdownlint]="markdownlint-cli2"
     [prettier]="prettier --check \"**/*.{css,js,json,yml,yaml}\""
+    [][build]="make build" 
 )
 
 ####################################################

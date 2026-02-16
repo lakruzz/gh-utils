@@ -18,6 +18,7 @@
       ]
     }
   },
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
   "customizations": {
     "vscode": {
       "extensions": [

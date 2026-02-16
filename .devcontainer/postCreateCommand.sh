@@ -1,35 +1,65 @@
-#!/bin/bash
-
-# postCreateCommand.sh
-# This script runs after the dev container is created
-# It installs dependencies for Ruby, Node.js, and Go if the respective files exist
+#!/usr/bin/env bash
 
 set -e
 
-echo "🚀 Running post-create setup..."
+PREFIX="🍰  "
+echo "$PREFIX Running $(basename $0)"
 
-# Install Ruby dependencies if Gemfile exists
-if [ -f "Gemfile" ]; then
-    echo "📦 Installing Ruby dependencies (bundle install)..."
-    bundle install
+
+if [ -n "$GH_TOKEN" ]; then
+  echo "$PREFIX  \$GH_TOKEN" defined. It takes precedens over \$GITHUB_TOKEN ...looking fine so far
 else
-    echo "⏭️  No Gemfile found, skipping Ruby dependencies"
+  if [[ "$CODESPACES" == "true" ]]; then
+      echo "$PREFIX No \$GH_TOKEN defined - using the standard ghu_*** token injected by the codespace into \$GITHUB_TOKEN"
+  else
+      echo "$PREFIX ⚠️ No \$GH_TOKEN defined - skipping GitHub CLI login."
+      echo "$PREFIX    1) Run 'gh auth login -s project' to login with OAuth and sufficient permissions"
+  fi
 fi
 
-# Install Node.js dependencies if package.json exists
-if [ -f "package.json" ]; then
-    echo "📦 Installing Node.js dependencies (npm install)..."
-    npm install
+set +e
+gh auth status >/dev/null 2>&1
+AUTH_OK=$?
+set -e
+if [ $AUTH_OK -ne 0 ]; then
+  echo "$PREFIX ⚠️ Not logged into GitHub CLI"
+  echo "$PREFIX    This is not loogking good  — we want GitHub CLI to work!"
 else
-    echo "⏭️  No package.json found, skipping Node.js dependencies"
+  echo "$PREFIX GitHub Authnetication is working smooth!"
+fi
+
+git config --global --add safe.directory $(pwd)
+echo "$PREFIX ✅ Setting up safe git repository to prevent dubious ownership errors"
+
+git config --local --get include.path | grep -e ../.gitconfig >/dev/null 2>&1 || git config --local --add include.path ../.gitconfig
+echo "$PREFIX ✅ Setting up git configuration to support .gitconfig in repo-root"
+
+
+if [ -f "Gemfile.lock" ]; then
+    echo "$PREFIX Installing ruby gems"
+    echo "$PREFIX Freeze Gemfile.lock so it isn't modified during install"
+    bundle config set frozen true
+    bundle install
+fi
+
+if [ -f "package-lock.json" ]; then
+    echo "$PREFIX Installing node modules"
+    npm ci
 fi
 
 # Install Go dependencies if go.mod exists
 if [ -f "go.mod" ]; then
-    echo "📦 Installing Go dependencies (go mod download)..."
+    echo "$PREFIX Installing Go dependencies (go mod download)..."
     go mod download
+
+    echo "$PREFIX Installing golangci-lint"
+    curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | \
+    sh -s -- -b $(go env GOPATH)/bin latest
+
 else
     echo "⏭️  No go.mod found, skipping Go dependencies"
 fi
 
-echo "✅ Post-create setup complete!"
+
+echo "$PREFIX ✅ SUCCESS"
+exit 0

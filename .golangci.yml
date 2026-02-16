@@ -13,13 +13,13 @@ issues:
     - vendor
     - .tmp
     - dist
-  
+
   # Maximum issues count per one linter
   max-issues-per-linter: 0
-  
+
   # Maximum count of issues with the same text
   max-same-issues: 0
-  
+
   # Exclude some linters from running on tests files
   exclude-rules:
     - path: _test\.go
@@ -33,48 +33,48 @@ issues:
 linters:
   enable:
     # Default linters (enabled by default but listed explicitly)
-    - errcheck      # Check for unchecked errors
-    - govet         # Reports suspicious constructs
-    - ineffassign   # Detect ineffectual assignments
-    - staticcheck   # Static analysis
-    - unused        # Check for unused code
-    
+    - errcheck # Check for unchecked errors
+    - govet # Reports suspicious constructs
+    - ineffassign # Detect ineffectual assignments
+    - staticcheck # Static analysis
+    - unused # Check for unused code
+
     # Additional linters
-    - misspell      # Check for misspelled words
-    - revive        # Fast, configurable linter (replaces golint)
-    - gosec         # Security issues
-    - gocyclo       # Cyclomatic complexity
-    - dupl          # Code duplication
-    - goconst       # Repeated strings that could be constants
-    - unconvert     # Unnecessary type conversions
-    - unparam       # Unused function parameters
-    - nakedret      # Naked returns in long functions
-    - prealloc      # Slice pre-allocation
-    - gocritic      # Go critique
-    - gocognit      # Cognitive complexity (similar to cyclomatic)
+    - misspell # Check for misspelled words
+    - revive # Fast, configurable linter (replaces golint)
+    - gosec # Security issues
+    - gocyclo # Cyclomatic complexity
+    - dupl # Code duplication
+    - goconst # Repeated strings that could be constants
+    - unconvert # Unnecessary type conversions
+    - unparam # Unused function parameters
+    - nakedret # Naked returns in long functions
+    - prealloc # Slice pre-allocation
+    - gocritic # Go critique
+    - gocognit # Cognitive complexity (similar to cyclomatic)
 
 linters-settings:
   gocyclo:
     # Minimal cyclomatic complexity to report
     min-complexity: 15
-  
+
   gocognit:
     # Minimal cognitive complexity to report
     min-complexity: 20
-  
+
   dupl:
     # Tokens count to trigger issue
     threshold: 150
-  
+
   goconst:
     # Minimal length of string constant
     min-len: 3
     # Minimal occurrences count to trigger
     min-occurrences: 3
-  
+
   misspell:
     locale: US
-  
+
   revive:
     rules:
       - name: exported
@@ -121,7 +121,7 @@ linters-settings:
         severity: warning
       - name: redefines-builtin-id
         severity: warning
-  
+
   gosec:
     # Select which checks to run
     includes:
@@ -149,8 +149,7 @@ linters-settings:
       - G503 # Import blocklist: crypto/rc4
       - G504 # Import blocklist: net/http/cgi
       - G505 # Import blocklist: crypto/sha1
-  
+
   nakedret:
     # Maximum number of lines for a naked return
     max-func-lines: 30
-
