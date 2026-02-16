@@ -1,4 +1,5 @@
 <!-- cspell:ignore gofmt golangci  -->
+
 # gh-utils
 
 A GitHub CLI extension providing utility commands for GitHub workflows and automation.

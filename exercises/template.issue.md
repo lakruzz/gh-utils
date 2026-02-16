@@ -1,12 +1,12 @@
 ---
-title:            # *required* (text)
-assign: []        # _optional_ (list of text) Assign people by their login. Use "@me" to self-assign.
-labels:           # _optional_ (list of tuples) Add labels by name
-  - name:         # *required* (text) Label name
-    color:        # _optinoal_ (text) Color of the label
-    desc:         # _optional_ (text) Description of the label
-milestone:        # _optional_ (text) Add the issue to a milestone by name
-projects:         # _optional_ (list of text) Add the issue to projects by title      
+title: # *required* (text)
+assign: [] # _optional_ (list of text) Assign people by their login. Use "@me" to self-assign.
+labels: # _optional_ (list of tuples) Add labels by name
+  - name: # *required* (text) Label name
+    color: # _optinoal_ (text) Color of the label
+    desc: # _optional_ (text) Description of the label
+milestone: # _optional_ (text) Add the issue to a milestone by name
+projects: # _optional_ (list of text) Add the issue to projects by title
 ---
 
 ## This is a sample issue instance template
@@ -29,29 +29,29 @@ Logins are typed without the `@` prefix, and exception to this rule is `@me` whi
 Valid:
 
 ```yaml
-assign: ["lakruzz", "@me"]  
+assign: ["lakruzz", "@me"]
 ```
 
 Valid:
 
 ```yaml
-assign: 
+assign:
   - lakruzz
-  - "@me"  
+  - "@me"
 ```
 
 Invalid:
 
 ```yaml
-assign: ["@lakruzz", "@me"]  
+assign: ["@lakruzz", "@me"]
 ```
 
 Valid:
 
 ```yaml
-assign: 
+assign:
   - @lakruzz
-  - @me  
+  - @me
 ```
 
 ## `labels``
@@ -78,7 +78,7 @@ $LABEL_NAME=<label.mame>
 $LABEL_DESC=<label.desc>
 $LABEL_COLOR=<label.color>
 
-gh label list --json name --jq '.[].name' | grep "$LABEL" 
+gh label list --json name --jq '.[].name' | grep "$LABEL"
 $? && gh label create "$LABEL_NAME" -c $LABEL_COLOR -d "$LABEL_DESC"
 ```
 
@@ -107,7 +107,7 @@ projects: ["Kanban upstream", "kanban downstream"]
 Valid:
 
 ```yaml
-projects: 
+projects:
   - "Kanban upstream"
   - "kanban downstream"
 ```

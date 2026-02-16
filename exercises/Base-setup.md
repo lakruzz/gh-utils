@@ -260,11 +260,7 @@ At this point your `devcontainer.json` looks like this
   },
   "customizations": {
     "vscode": {
-      "extensions": [
-        "mhutchie.git-graph",
-        "mk12.better-git-line-blame",
-        "GitHub.copilot-chat"
-      ]
+      "extensions": ["mhutchie.git-graph", "mk12.better-git-line-blame", "GitHub.copilot-chat"]
     }
   },
   "remoteEnv": {

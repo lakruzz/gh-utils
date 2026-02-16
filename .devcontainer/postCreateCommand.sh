@@ -26,6 +26,10 @@ if [ $AUTH_OK -ne 0 ]; then
   echo "$PREFIX    This is not loogking good  — we want GitHub CLI to work!"
 else
   echo "$PREFIX GitHub Authnetication is working smooth!"
+  echo "$PREFIX Installing the TakT gh cli extension from devx-cafe/gh-tt "
+gh extension install devx-cafe/gh-tt --pin experimental
+echo "$PREFIX Installing the gh shorthand aliases"    
+gh alias import .devcontainer/.gh_alias.yml --clobber
 fi
 
 git config --global --add safe.directory $(pwd)

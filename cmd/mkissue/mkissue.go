@@ -73,7 +73,6 @@ func RunWithFile(issueFile string) error {
 	return nil
 }
 
-
 func parseIssueFile(content string) (*IssueMetadata, string, error) {
 	// Split by frontmatter delimiters
 	parts := strings.Split(content, "---")

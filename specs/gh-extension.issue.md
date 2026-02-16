@@ -27,7 +27,7 @@ The contract for a GH CLI extension is that it's name starts with `gh-` and than
 
 So this repos should be named `lakruzz/gh-utiils` and the go project should compile to `./utils` (as it does already).
 
-That would enable this feature to be installed  using the GH CLI built-in package manager and called as a gh extension.
+That would enable this feature to be installed using the GH CLI built-in package manager and called as a gh extension.
 Like this:
 
 ```bash
@@ -93,13 +93,13 @@ A specific note to the `copilot-setup-steps-yml`:
 You should setup to be dependant on the `pre-commit` hook. and you should run it manually. to verify that the workflow works. So the last two steps in the workflow should be along the lines of
 
 ```yaml
-      # Configure git hooks path
-      - name: Configure Git hooks
-        run: git config core.hooksPath .githooks
+# Configure git hooks path
+- name: Configure Git hooks
+  run: git config core.hooksPath .githooks
 
-      # Verify the setup by running the pre-commit hook
-      - name: Test pre-commit hook
-        run: .githooks/pre-commit
+# Verify the setup by running the pre-commit hook
+- name: Test pre-commit hook
+  run: .githooks/pre-commit
 ```
 
 ## Finalize the `pre-commit` hook to serve the new setup

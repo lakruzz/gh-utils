@@ -37,3 +37,6 @@ tmp/
 dist/
 build/
 example-issue.md
+
+## gh-tt
+.tt_cache

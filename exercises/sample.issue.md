@@ -27,29 +27,29 @@ Logins are typed without the `@` prefix, and exception to this rule is `@me` whi
 Valid:
 
 ```yaml
-assign: ["lakruzz", "@me"]  
+assign: ["lakruzz", "@me"]
 ```
 
 Valid:
 
 ```yaml
-assign: 
+assign:
   - lakruzz
-  - "@me"  
+  - "@me"
 ```
 
 Invalid:
 
 ```yaml
-assign: ["@lakruzz", "@me"]  
+assign: ["@lakruzz", "@me"]
 ```
 
 Valid:
 
 ```yaml
-assign: 
+assign:
   - @lakruzz
-  - @me  
+  - @me
 ```
 
 ## `labels``
@@ -76,7 +76,7 @@ $LABEL_NAME=<label.mame>
 $LABEL_DESC=<label.desc>
 $LABEL_COLOR=<label.color>
 
-gh label list --json name --jq '.[].name' | grep "$LABEL" 
+gh label list --json name --jq '.[].name' | grep "$LABEL"
 $? && gh label create "$LABEL_NAME" -c $LABEL_COLOR -d "$LABEL_DESC"
 ```
 
@@ -105,7 +105,7 @@ projects: ["Kanban upstream", "kanban downstream"]
 Valid:
 
 ```yaml
-projects: 
+projects:
   - "Kanban upstream"
   - "kanban downstream"
 ```

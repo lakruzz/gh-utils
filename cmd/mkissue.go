@@ -28,4 +28,3 @@ func init() {
 	mkissueCmd.Flags().StringVarP(&issueFile, "file", "f", "", "Path to the markdown file containing issue content (required)")
 	_ = mkissueCmd.MarkFlagRequired("file")
 }
-
