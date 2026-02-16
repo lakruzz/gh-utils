@@ -534,7 +534,6 @@ func TestReadFileFromGistInvalidGist(t *testing.T) {
 	}
 }
 
-
 func TestIntegrationParseAndValidate(t *testing.T) {
 	// Test complete parsing and validation flow
 	content := `---
