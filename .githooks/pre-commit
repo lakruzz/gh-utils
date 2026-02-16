@@ -15,17 +15,12 @@
 # Define checks: name and command
 # To add a new check: add "name" to CHECK_NAMES and add CHECK_COMMANDS[name]="command"
 # To disable a check: remove the name from CHECK_NAMES (doesn't need removal from CHECK_COMMANDS)
-CHECK_NAMES=("cspell" "markdownlint" "prettier" "gofmt" "govet" "golangci-lint" "gotest" "gobuild")
+CHECK_NAMES=("cspell" "markdownlint" "prettier")
 
 declare -A CHECK_COMMANDS=(
-    [cspell]="cspell ."
+    [cspell]="cspell"
     [markdownlint]="markdownlint-cli2"
-    [prettier]="prettier --check \"**/*.{md,html,css,js,json}\""
-    [gofmt]="test -z \"\$(gofmt -l .)\" || { gofmt -l .; exit 1; }"
-    [govet]="go vet ./..."
-    [golangci-lint]="export PATH=\$PATH:\$(go env GOPATH)/bin && golangci-lint run ./..."
-    [gotest]="go test ./... -race -coverprofile=coverage.txt"
-    [gobuild]="go build -o utils ."
+    [prettier]="prettier --check \"**/*.{css,js,json,yml,yaml}\""
 )
 
 ####################################################
@@ -65,16 +60,6 @@ capitalize() {
 run_check() {
     local name=$1
     
-    # Extract the command (first word) from the check command
-    local cmd=$(echo "${CHECK_COMMANDS[$name]}" | awk '{print $1}')
-    
-    # Skip check if command doesn't exist
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-        CHECK_STATUS[$name]=0
-        CHECK_PID[$name]=0
-        return
-    fi
-    
     printf "   ⏳ $(capitalize $name) check\n"
     ((PROGRESS_COUNT++))
     eval "${CHECK_COMMANDS[$name]}" > "${CHECK_OUT[$name]}" 2>&1 &
@@ -85,23 +70,12 @@ run_check() {
 wait_check() {
     local name=$1
     
-    # Skip if PID is 0 (command was not available)
-    if [ "${CHECK_PID[$name]}" -eq 0 ]; then
-        return
-    fi
-    
     wait "${CHECK_PID[$name]}" || CHECK_STATUS[$name]=$?
 }
 
 # Function to print status line
 print_status() {
     local name=$1
-    
-    # Skip if command was not available
-    if [ "${CHECK_PID[$name]}" -eq 0 ]; then
-        echo "   ⏭️  $(capitalize $name) check (skipped - command not found)"
-        return
-    fi
     
     if [ "${CHECK_STATUS[$name]}" -eq 0 ]; then
         echo "   ✅ $(capitalize $name) check"
@@ -142,17 +116,9 @@ for check in "${CHECK_NAMES[@]}"; do
 done
 
 # Clear progress lines and replace with results
-# Only clear lines for checks that were actually started
-ACTUAL_PROGRESS=0
-for check in "${CHECK_NAMES[@]}"; do
-    if [ "${CHECK_PID[$check]}" -ne 0 ]; then
-        ((ACTUAL_PROGRESS++))
-    fi
-done
-
-for ((i=0; i<ACTUAL_PROGRESS; i++)); do
-    tput cuu 1 2>/dev/null || true  # Move cursor up one line
-    tput el 2>/dev/null || true     # Clear line
+for ((i=0; i<PROGRESS_COUNT; i++)); do
+    tput cuu 1  # Move cursor up one line
+    tput el     # Clear line
 done
 
 # Print final status for each check

@@ -7,15 +7,14 @@
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
-    "ghcr.io/devcontainers/features/go:1": {
-      "version": "1.23"
-    },
+    "ghcr.io/devcontainers/features/go:1": {},
     "ghcr.io/devcontainers-extra/features/npm-packages:1": {
       "packages": [
-        "prettier",
-        "markdownlint-cli2",
         "cspell",
-        "@cspell/dict-da-dk"
+        "markdownlint-cli2",
+        "@cspell/dict-da-dk",
+        "prettier",
+        "@github/copilot"
       ]
     }
   },
@@ -35,8 +34,7 @@
   },
   "remoteEnv": {
     "GH_TOKEN": "${localEnv:GH_TOKEN}"
-  },
-  "postCreateCommand": ".devcontainer/postCreateCommand.sh"
+  }
 
   // Features to add to the dev container. More info: https://containers.dev/features.
   // "features": {},

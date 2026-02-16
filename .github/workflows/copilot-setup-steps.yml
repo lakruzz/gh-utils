@@ -12,6 +12,8 @@ on:
 jobs:
   setup-and-validate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     
     steps:
       # Checkout code
