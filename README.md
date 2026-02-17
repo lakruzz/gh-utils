@@ -16,7 +16,7 @@ gh extension install lakruzz/gh-utils
 
 ### `mkissue` - Create GitHub Issue from Markdown File
 
-Create a GitHub issue from a markdown file:
+Create a GitHub issue from a markdown file with YAML frontmatter:
 
 ```bash
 gh utils mkissue --file path/to/issue.md
@@ -24,122 +24,56 @@ gh utils mkissue --file path/to/issue.md
 gh utils mkissue -f path/to/issue.md
 ```
 
-The markdown file should have the following format:
+#### Reading from a Git Branch
 
-```markdown
-# Issue Title
-
-Issue body goes here.
-Multiple paragraphs are supported.
-```
-
-The first line (with or without `#`) becomes the issue title, and the rest becomes the issue body.
-
-## Development
-
-### Prerequisites
-
-- Go 1.23 or higher
-- Make
-- golangci-lint (installed automatically via `make install-lint`)
-
-### Building
+You can read the issue file from a specific git branch without checking it out to your filesystem:
 
 ```bash
-# Build for current platform
-make build
-
-# Build for all platforms (Linux, Darwin, Windows on AMD64 and ARM64)
-make build-all
-
-# Clean build artifacts
-make clean
+gh utils mkissue --file path/to/issue.md --branch secret
+# or using short form
+gh utils mkissue -f path/to/issue.md -b secret
 ```
 
-### Testing
+This is useful for keeping issue templates in a separate orphan branch.
 
-```bash
-# Run tests
-make test
+#### Issue File Format
 
-# Run tests with coverage
-make coverage
+The issue file must follow the format specified in [`exercises/template.issue.md`](exercises/template.issue.md). This template defines the contract for issue files:
 
-# Run linter
-make lint
+- **Frontmatter** (YAML): Contains metadata like title, assignees, labels, milestone, and projects
+- **Body** (Markdown): The issue description/content
 
-# Format code
-make fmt
+**Example:**
+
+```yaml
+---
+title: "My Issue Title"
+assign:
+  - "@me"
+labels:
+  - name: "bug"
+  - name: "priority-high"
+    color: "d73a4a"
+    desc: "High priority issues"
+milestone: "v1.0"
+projects:
+  - "Main Project"
+---
+
+## Issue Description
+
+This is the issue body written in Markdown.
+
+- Supports lists
+- **Bold text**
+- And all other Markdown features
 ```
 
-### Development Workflow
-
-1. Make your changes
-2. Run `make test` to ensure tests pass
-3. Run `make lint` to ensure code quality
-4. Run `make build` to verify the build
-5. Commit your changes (pre-commit hook will run all checks)
-
-### Pre-commit Hooks
-
-This repository uses pre-commit hooks to ensure code quality. The hooks run:
-
-- Spell checking (cspell)
-- Markdown linting
-- Code formatting (prettier, gofmt)
-- Go vet
-- golangci-lint
-- Go tests
-- Build verification
-
-Configure git to use the hooks:
-
-```bash
-git config core.hooksPath .githooks
-```
-
-## Project Structure
-
-```txt
-.
-├── main.go              # Application entry point
-├── cmd/                 # CLI commands
-│   ├── root.go         # Root command
-│   └── mkissue.go      # mkissue subcommand
-├── internal/            # Internal packages
-│   └── issue/          # Issue creation logic
-├── Makefile            # Build automation
-├── .golangci.yml       # Linter configuration
-└── .githooks/          # Git hooks
-```
-
-## CI/CD
-
-GitHub Actions workflow (`.github/workflows/copilot-setup-steps.yml`) automatically:
-
-- Runs tests with race detector
-- Checks code formatting
-- Runs linters
-- Builds the binary
-- Verifies pre-commit hooks
+See [`exercises/template.issue.md`](exercises/template.issue.md) for the complete specification and all supported fields.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes following the coding standards
-4. Ensure all tests and linters pass
-5. Submit a pull request
-
-### Coding Standards
-
-- Follow Go community standards
-- Use `gofmt` for formatting
-- Write table-driven tests
-- Use named flags over positional arguments
-- Document exported functions
-
-See `.github/copilot-instructions.md` and `.github/instructions/go-standards.instructions.md` for detailed guidelines.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for developer documentation and guidelines.
 
 ## License
 
