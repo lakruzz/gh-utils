@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"regexp"
 	"strings"
 )
 
@@ -29,7 +30,7 @@ func Run(args []string) {
 	}
 
 	issueFile := args[0]
-	if err := RunWithFile(issueFile, ""); err != nil {
+	if err := RunWithFile(issueFile, "", ""); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
@@ -38,12 +39,18 @@ func Run(args []string) {
 // RunWithFile processes a single issue file and returns an error instead of exiting.
 // This function is compatible with Cobra command error handling.
 // If branch is provided, the file will be read from that git branch.
-func RunWithFile(issueFile, branch string) error {
+// If gist is provided, the file will be read from that gist.
+func RunWithFile(issueFile, branch, gist string) error {
 	var content []byte
 	var err error
 
-	// Read the file from the specified branch or from the filesystem
-	if branch != "" {
+	// Read the file from the specified source
+	if gist != "" {
+		content, err = readFileFromGist(issueFile, gist)
+		if err != nil {
+			return fmt.Errorf("failed to read file from gist '%s': %w", gist, err)
+		}
+	} else if branch != "" {
 		content, err = readFileFromBranch(issueFile, branch)
 		if err != nil {
 			return fmt.Errorf("failed to read file from branch '%s': %w", branch, err)
@@ -106,6 +113,37 @@ func readFileFromBranch(filePath, branch string) ([]byte, error) {
 			return nil, fmt.Errorf("failed to read file from branch: %s", string(exitErr.Stderr))
 		}
 		return nil, fmt.Errorf("failed to read file from branch: %w", err)
+	}
+	return output, nil
+}
+
+// readFileFromGist reads a file from a GitHub gist using the gh CLI.
+// It uses `gh gist view <gist-id> -f <filename> -r` to retrieve the file content.
+func readFileFromGist(fileName, gistID string) ([]byte, error) {
+	// Validate gist ID - GitHub gist IDs are hexadecimal strings (32 characters)
+	// Using a positive pattern for security and maintainability
+	gistIDPattern := regexp.MustCompile(`^[a-f0-9]{32}$`)
+	if !gistIDPattern.MatchString(gistID) {
+		return nil, fmt.Errorf("invalid gist ID: must be a 32-character hexadecimal string")
+	}
+
+	// Validate file name - allow alphanumeric, dots, hyphens, underscores
+	// GitHub gists use flat file structure (no subdirectories), so reject path separators
+	fileNamePattern := regexp.MustCompile(`^[a-zA-Z0-9._-]+$`)
+	if !fileNamePattern.MatchString(fileName) {
+		return nil, fmt.Errorf("invalid file name: only alphanumeric characters, dots, hyphens, and underscores are allowed")
+	}
+
+	// Use gh gist view to read the file from the specified gist
+	// Note: exec.Command passes arguments separately, not through shell, preventing injection
+	cmd := exec.Command("gh", "gist", "view", gistID, "-f", fileName, "-r")
+	output, err := cmd.Output()
+	if err != nil {
+		// Check if it's an exit error and provide more context
+		if exitErr, ok := err.(*exec.ExitError); ok {
+			return nil, fmt.Errorf("failed to read file from gist: %s", string(exitErr.Stderr))
+		}
+		return nil, fmt.Errorf("failed to read file from gist: %w", err)
 	}
 	return output, nil
 }

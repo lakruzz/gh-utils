@@ -370,7 +370,7 @@ This is a test issue.`
 	}()
 
 	// Need to modify RunWithFile to use mocks - for now test basic validation
-	err = RunWithFile(tmpFile.Name(), "")
+	err = RunWithFile(tmpFile.Name(), "", "")
 	if err != nil && strings.Contains(err.Error(), "gh command failed") {
 		// This is expected since gh CLI not available, but parsing should have worked
 		t.Logf("Got expected gh command error: %v", err)
@@ -378,7 +378,7 @@ This is a test issue.`
 }
 
 func TestRunWithFileNonexistentFile(t *testing.T) {
-	err := RunWithFile("/nonexistent/file/path.md", "")
+	err := RunWithFile("/nonexistent/file/path.md", "", "")
 	if err == nil {
 		t.Errorf("RunWithFile() expected error for nonexistent file")
 	}
@@ -405,7 +405,7 @@ This issue has no title.`
 	}
 	tmpFile.Close()
 
-	err = RunWithFile(tmpFile.Name(), "")
+	err = RunWithFile(tmpFile.Name(), "", "")
 	if err == nil {
 		t.Errorf("RunWithFile() expected error for missing title")
 	}
@@ -471,6 +471,91 @@ func TestReadFileFromBranchInvalidBranch(t *testing.T) {
 	_, err := readFileFromBranch("nonexistent.md", "nonexistent-branch")
 	if err == nil {
 		t.Errorf("readFileFromBranch() expected error for nonexistent branch")
+	}
+}
+
+func TestReadFileFromGistValidation(t *testing.T) {
+	tests := []struct {
+		name     string
+		fileName string
+		gistID   string
+		wantErr  bool
+		errMsg   string
+	}{
+		{
+			name:     "gist ID too short",
+			fileName: "file.md",
+			gistID:   "shortid",
+			wantErr:  true,
+			errMsg:   "32-character hexadecimal",
+		},
+		{
+			name:     "gist ID with uppercase",
+			fileName: "file.md",
+			gistID:   "6EF8A9C46F65F5FEDB58E81B70DD90BA",
+			wantErr:  true,
+			errMsg:   "32-character hexadecimal",
+		},
+		{
+			name:     "gist ID with non-hex characters",
+			fileName: "file.md",
+			gistID:   "6ef8a9c46f65f5fedb58e81b70dd90bg",
+			wantErr:  true,
+			errMsg:   "32-character hexadecimal",
+		},
+		{
+			name:     "fileName with path traversal",
+			fileName: "../file.md",
+			gistID:   "6ef8a9c46f65f5fedb58e81b70dd90ba",
+			wantErr:  true,
+			errMsg:   "alphanumeric",
+		},
+		{
+			name:     "fileName with forward slash",
+			fileName: "path/file.md",
+			gistID:   "6ef8a9c46f65f5fedb58e81b70dd90ba",
+			wantErr:  true,
+			errMsg:   "alphanumeric",
+		},
+		{
+			name:     "fileName with backslash",
+			fileName: "path\\file.md",
+			gistID:   "6ef8a9c46f65f5fedb58e81b70dd90ba",
+			wantErr:  true,
+			errMsg:   "alphanumeric",
+		},
+		{
+			name:     "fileName with special characters",
+			fileName: "file$name.md",
+			gistID:   "6ef8a9c46f65f5fedb58e81b70dd90ba",
+			wantErr:  true,
+			errMsg:   "alphanumeric",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := readFileFromGist(tt.fileName, tt.gistID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readFileFromGist() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if err != nil && tt.errMsg != "" && !strings.Contains(err.Error(), tt.errMsg) {
+				t.Errorf("readFileFromGist() error = %v, want %q", err, tt.errMsg)
+			}
+		})
+	}
+}
+
+func TestReadFileFromGistInvalidGist(t *testing.T) {
+	// Test with a gist that doesn't exist - use valid format but nonexistent ID
+	_, err := readFileFromGist("nonexistent.md", "0000000000000000000000000000000a")
+	if err == nil {
+		t.Errorf("readFileFromGist() expected error for nonexistent gist")
+	}
+	// Verify the error message indicates it failed to read from gist
+	if err != nil && !strings.Contains(err.Error(), "failed to read file from gist") {
+		t.Errorf("readFileFromGist() error = %v, want error containing 'failed to read file from gist'", err)
 	}
 }
 
